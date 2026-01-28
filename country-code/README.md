@@ -692,8 +692,9 @@ killall -HUP kvmd
 
 1. **Access Web UI**
    ```
-   https://192.168.8.107
+   https://<your-device-ip>
    ```
+   Replace `<your-device-ip>` with your device's IP address, e.g.: `https://192.168.1.100`
 
 2. **Check Dynamic Binding Code**
    - Login and check "Dynamic Binding Code" on homepage

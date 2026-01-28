@@ -269,36 +269,49 @@ killall -HUP kvmd
 
 **重要**: 在 Web UI 进行 Cloud Service 绑定时，请注意以下事项：
 
-1. **绑定方式选择**
+1. **绑定方式说明**
    - 执行完脚本后，在 Web UI 中会看到两个选项：
-     - `Bind to KVMD CLOUD` - 绑定到云平台
-     - `Bind with Code` - 使用绑定码绑定
+     - `Bind to KVMD CLOUD` - 绑定到云平台（会自动跳转到对应国家码的云平台）
+     - `Bind with Code` - 使用绑定码绑定（手动方式）
 
-2. **手动添加绑定码**
-   - 无论选择哪种方式，都需要**手动在对应国家码的服务器平台添加绑定码**
-   - 中国配置: 访问 `www.glkvm.cn` 添加绑定码
-   - 其他地区配置: 访问 `www.glkvm.com` 添加绑定码
+2. **绑定方式选择**
+
+   **方式一：Bind to KVMD CLOUD（推荐）**
+   - 点击后会自动跳转到对应国家码的云平台
+   - 中国配置: 跳转到 `www.glkvm.cn`
+   - 其他地区配置: 跳转到 `www.glkvm.com`
+   - 按照页面提示完成绑定即可
+
+   **方式二：Bind with Code**
+   - 需要手动访问对应国家码的云平台
+   - 中国配置: 访问 `www.glkvm.cn`
+   - 其他地区配置: 访问 `www.glkvm.com`
+   - 复制 Web UI 显示的 8 位绑定码
+   - 在云平台页面粘贴绑定码，完成绑定
 
 3. **域名匹配检查**
    - 绑定码必须与国家码对应的服务器平台匹配
    - **可能出现不匹配情况**:
      - 配置了中国服务器(CN)，但生成的是 `www.glkvm.com` 的绑定链接
-     - 配置了国际服务器，但生成的是 `www.glkvm.cn` 的绑定链接
-   - **解决方法**: 检查 `/etc/glinet/gl-cloud.conf` 中的 `server` 字段是否正确配置
-     ```bash
-     # 检查配置
-     cat /etc/glinet/gl-cloud.conf
+     - 配置了国际服务器(US)，但生成的是 `www.glkvm.cn` 的绑定链接
+   - **解决方法**:
+     1. 检查 `/etc/glinet/gl-cloud.conf` 中的 `server` 字段是否正确配置
+        ```bash
+        cat /etc/glinet/gl-cloud.conf
+        ```
+     2. 重新生成绑定链接
+        ```bash
+        /usr/bin/eco /usr/bin/get_bindlink bindlink
+        cat /var/run/cloud/bindlink
+        ```
+     3. 刷新 Web UI 页面，查看新的绑定码和链接
 
-     # 重新生成绑定链接
-     /usr/bin/eco /usr/bin/get_bindlink bindlink
-     cat /var/run/cloud/bindlink
-     ```
-
-4. **验证绑定域名**
-   - 在执行绑定前，请确认生成的绑定链接域名是否正确：
-     - 中国配置应显示 `www.glkvm.cn`
-     - 国际配置应显示 `www.glkvm.com`
-   - 如果域名不匹配，请重新运行配置脚本并重启服务
+4. **使用示例**
+   - 假设原设备是 CN，后来改成 US
+   - 执行脚本后，生成的绑定码变为 US 格式
+   - 选择 "Bind to KVMD CLOUD"，会自动跳转到 `www.glkvm.com`
+   - 或者复制 8 位绑定码，新开网页访问 `www.glkvm.com`
+   - 在页面粘贴绑定码，完成设备绑定
 
 ---
 
@@ -709,36 +722,49 @@ killall -HUP kvmd
 
 **Important**: When binding Cloud Service in Web UI, please note:
 
-1. **Binding Method Selection**
+1. **Binding Methods**
    - After running the script, you will see two options in Web UI:
-     - `Bind to KVMD CLOUD` - Bind to cloud platform
-     - `Bind with Code` - Use binding code to bind
+     - `Bind to KVMD CLOUD` - Bind to cloud platform (auto-redirect to corresponding platform)
+     - `Bind with Code` - Use binding code to bind (manual method)
 
-2. **Manually Add Binding Code**
-   - Regardless of which method you choose, you need to **manually add the binding code on the corresponding country code's server platform**
-   - Chinese config: Visit `www.glkvm.cn` to add binding code
-   - Other region config: Visit `www.glkvm.com` to add binding code
+2. **How to Bind**
+
+   **Method 1: Bind to KVMD CLOUD (Recommended)**
+   - Click to auto-redirect to the cloud platform corresponding to your country code
+   - Chinese config: Redirects to `www.glkvm.cn`
+   - Other region config: Redirects to `www.glkvm.com`
+   - Follow the on-screen instructions to complete binding
+
+   **Method 2: Bind with Code**
+   - Manually visit the cloud platform corresponding to your country code
+   - Chinese config: Visit `www.glkvm.cn`
+   - Other region config: Visit `www.glkvm.com`
+   - Copy the 8-digit binding code displayed in Web UI
+   - Paste the binding code on the cloud platform page to complete device binding
 
 3. **Domain Matching Check**
    - The binding code must match the server platform corresponding to the country code
    - **Mismatch may occur**:
      - Configured for Chinese server (CN), but generates binding link for `www.glkvm.com`
-     - Configured for International server, but generates binding link for `www.glkvm.cn`
-   - **Solution**: Check if the `server` field in `/etc/glinet/gl-cloud.conf` is correctly configured
-     ```bash
-     # Check configuration
-     cat /etc/glinet/gl-cloud.conf
+     - Configured for International server (US), but generates binding link for `www.glkvm.cn`
+   - **Solution**:
+     1. Check if the `server` field in `/etc/glinet/gl-cloud.conf` is correctly configured
+        ```bash
+        cat /etc/glinet/gl-cloud.conf
+        ```
+     2. Regenerate binding link
+        ```bash
+        /usr/bin/eco /usr/bin/get_bindlink bindlink
+        cat /var/run/cloud/bindlink
+        ```
+     3. Refresh the Web UI page to see the new binding code and link
 
-     # Regenerate binding link
-     /usr/bin/eco /usr/bin/get_bindlink bindlink
-     cat /var/run/cloud/bindlink
-     ```
-
-4. **Verify Binding Domain**
-   - Before binding, confirm the generated binding link domain is correct:
-     - Chinese config should show `www.glkvm.cn`
-     - International config should show `www.glkvm.com`
-   - If domain doesn't match, re-run configuration script and restart services
+4. **Usage Example**
+   - Suppose the original device was CN, later changed to US
+   - After running the script, the generated binding code becomes US format
+   - Choose "Bind to KVMD CLOUD", it will auto-redirect to `www.glkvm.com`
+   - Or copy the 8-digit binding code, open a new browser to visit `www.glkvm.com`
+   - Paste the binding code on the page to complete device binding
 
 ---
 

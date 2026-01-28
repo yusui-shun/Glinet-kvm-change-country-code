@@ -1,4 +1,10 @@
-# GL.iNet 国家码覆盖工具
+# GL.iNet 国家码覆盖工具 / GL.iNet Country Code Override Tool
+
+> [中文](#中文文档) | [English](#english)
+
+---
+
+## <a name="中文文档"></a>中文文档
 
 > **适用设备**: GL.iNet GLKVM 设备（RM1、RM10 等）
 >
@@ -399,3 +405,407 @@ A: 目前支持：CN（中国）、US（美国）、EU（欧洲）、GB（英国
 ---
 
 **如果这个工具对你有帮助，请给个 Star ⭐**
+
+---
+
+## <a name="english"></a>English Documentation
+
+> **Compatible Devices**: GL.iNet GLKVM devices (RM1, RM10, etc.)
+>
+> **Feature**: Modify device country code configuration without recompiling firmware to switch between CN/International servers
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+---
+
+## 📚 Table of Contents
+
+- [Features](#features)
+- [Security Warning](#security-warning)
+- [How It Works](#how-it-works)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Troubleshooting](#troubleshooting)
+- [FAQ](#faq)
+
+---
+
+## 🎯 Features
+
+This tool allows you to override the country code configuration of GL.iNet GLKVM devices in user space, implementing the following functions:
+
+### Main Features
+
+1. **STUN Server Switching**
+   - Chinese Server: `stun.miwifi.com:3478`
+   - Other Regions: `stun.l.google.com:19302`
+
+2. **Cloud Binding Domain Switching**
+   - Chinese Server: `www.glkvm.cn`
+   - Other Regions: `www.glkvm.com`
+
+3. **Dynamic Binding Code Generation**
+   - Generate 8-digit binding codes based on country code
+
+4. **Pure User-Space Implementation**
+   - No kernel module modification required
+   - No firmware recompilation needed
+   - No impact on original system files
+   - Fully reversible
+
+### Use Cases
+
+- **Domestic Users**: Use domestic cloud services for faster connection speeds
+- **International Users**: Use international cloud services for better access experience
+- **Developers**: Test cloud service functionality in different regions
+- **Privacy Protection**: Avoid connecting to servers in specific regions
+
+---
+
+## ⚠️ Security Warning
+
+### 🔐 Token Notice
+
+**Important**: Each device's `token` is a unique identifier and must be kept confidential!
+
+- This tool automatically generates a unique random token for each device
+- Do not share configuration files containing real tokens
+- Do not publish tokens in public places
+
+---
+
+## 🔧 How It Works
+
+### System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        User Space                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────┐     ┌──────────────┐                     │
+│  │ KVMD Daemon  │────▶│ STUN Server  │                     │
+│  │  (Python)    │     │   Selector    │                     │
+│  └──────▲───────┘     └──────────────┘                     │
+│         │                                                      │
+│         │ Monkey Patching                                     │
+│         │                                                      │
+│  ┌──────┴──────┐     ┌──────────────┐                     │
+│  │open() Hook  │     │Cloud Binding │                     │
+│  │             │     │  API         │                     │
+│  └──────┬──────┘     └──────▲───────┘                     │
+│         │                   │                              │
+├─────────┼───────────────────┼──────────────────────────────┤
+│         │      Kernel Space  │                              │
+│  ┌──────┴──────┐             │                              │
+│  │/proc/gl-    │             │                              │
+│  │hw-info/     │             │                              │
+│  │country_code │             │                              │
+│  └─────────────┘             │                              │
+│         │                    │                              │
+│  ┌──────┴────────────────────┴──────┐                      │
+│  │   gl_hw_info Kernel Module       │                      │
+│  │   (Read-only, unmodifiable)       │                      │
+│  └────────────────────────────────────┘                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Implementation Mechanism
+
+**Problem**: KVMD reads country code from `/proc/gl-hw-info/country_code`, but this file is provided by kernel module and cannot be modified directly.
+
+**Solution**: Use Python Monkey Patching technology
+
+```python
+# Original code
+country_code = open('/proc/gl-hw-info/country_code').read().strip()
+
+# After Monkey Patching
+import io
+_original_open = open
+
+def _patched_open(path, *args, **kwargs):
+    if 'gl-hw-info' in str(path) and 'country_code' in str(path):
+        return io.StringIO('CN\n')  # Return user-configured country code
+    return _original_open(path, *args, **kwargs)
+
+import builtins
+builtins.open = _patched_open
+```
+
+**Effect**: When KVMD tries to read country code, it automatically returns the user-configured value.
+
+### GSLB Server Mapping
+
+| Country Code | GSLB Server | Binding Domain | STUN Server |
+|-------------|------------|---------|------------|
+| CN     | gslb.gl-inet.cn | www.glkvm.cn | stun.miwifi.com:3478 |
+| Other Regions | gslb-eu.goodcloud.xyz | www.glkvm.com | stun.l.google.com:19302 |
+
+---
+
+## 📥 Installation
+
+### System Requirements
+
+- GL.iNet GLKVM device (RM1, RM10, etc.)
+- Root permissions
+- Network connection
+- Python 3.x (included in system)
+
+### Automatic Installation (Recommended)
+
+```bash
+# 1. Download tool archive
+git clone https://github.com/yusui-shun/glinet-change-country-code.git
+cd glinet-change-country-code/country-code
+
+# 2. Run installation script
+chmod +x install.sh
+sudo ./install.sh
+
+# 3. Configure country code
+sudo ./setup-country-code.sh CN   # China
+# or
+sudo ./setup-country-code.sh US   # Other regions
+```
+
+### Quick Install (One-line)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/yusui-shun/glinet-change-country-code/main/country-code/install.sh | bash
+```
+
+### Verify Installation
+
+```bash
+# 1. Check configuration files
+cat /etc/kvmd/user/country_code
+cat /etc/glinet/gl-cloud.conf
+
+# 2. Check KVMD process
+ps aux | grep kvmd
+
+# 3. Test STUN API
+curl -s http://localhost/api/turn/get_turn | jq
+```
+
+---
+
+## 🎮 Usage
+
+### Quick Country Code Switch
+
+#### Method 1: Using Configuration Script (Recommended)
+
+```bash
+# Switch to Chinese server
+sudo ./setup-country-code.sh CN
+
+# Switch to other region servers
+sudo ./setup-country-code.sh US
+sudo ./setup-country-code.sh EU
+sudo ./setup-country-code.sh GB
+sudo ./setup-country-code.sh JP
+sudo ./setup-country-code.sh KR
+```
+
+#### Method 2: Manual Configuration
+
+**Switch to Chinese Configuration**:
+
+```bash
+# 1. Set country code
+echo "CN" > /etc/kvmd/user/country_code
+
+# 2. Configure cloud server
+cat > /etc/glinet/gl-cloud.conf <<EOF
+{
+  "enable": true,
+  "server": "gslb.gl-inet.cn",
+  "token": "$(uuidgen | tr -d '-')"
+}
+EOF
+
+# 3. Restart services
+/etc/init.d/S99gl-cloud restart
+killall -HUP kvmd
+```
+
+**Switch to Other Region Configuration**:
+
+```bash
+# 1. Set country code
+echo "US" > /etc/kvmd/user/country_code
+
+# 2. Configure cloud server
+cat > /etc/glinet/gl-cloud.conf <<EOF
+{
+  "enable": true,
+  "server": "gslb-eu.goodcloud.xyz",
+  "token": "$(uuidgen | tr -d '-')"
+}
+EOF
+
+# 3. Restart services
+/etc/init.d/S99gl-cloud restart
+killall -HUP kvmd
+```
+
+### Web Verification
+
+1. **Access Web UI**
+   ```
+   https://192.168.8.107
+   ```
+
+2. **Check Dynamic Binding Code**
+   - Login and check "Dynamic Binding Code" on homepage
+   - Should see 8-digit binding code
+
+3. **Check Cloud Binding Link**
+   - Click "Cloud Service"
+   - Chinese config: `https://www.glkvm.cn/#/bindDeviceByFirmware?...`
+   - Other region config: `https://www.glkvm.com/#/bindDeviceByFirmware?...`
+
+---
+
+## 🔍 Troubleshooting
+
+### Problem 1: Dynamic Binding Code Not Displayed
+
+**Symptom**: Web UI doesn't show "Dynamic Binding Code"
+
+**Cause**: KVMD service not started properly
+
+**Solution**:
+
+```bash
+# 1. Check KVMD process
+ps aux | grep kvmd
+
+# 2. View KVMD logs
+journalctl -u kvmd -n 50 --no-pager
+
+# 3. Check KVMD script syntax
+python3 -m py_compile /usr/bin/kvmd
+
+# 4. If script has problems, restore backup
+cp /usr/bin/kvmd.bak /usr/bin/kvmd
+/etc/init.d/kvmd restart
+```
+
+### Problem 2: Wrong Binding Domain
+
+**Symptom**: Binding link shows `www.glkvm.com` even with CN config
+
+**Cause**: `/etc/glinet/gl-cloud.conf` misconfigured
+
+**Solution**:
+
+```bash
+# 1. Check configuration
+cat /etc/glinet/gl-cloud.conf
+
+# 2. Ensure server field is correct
+# China: "server": "gslb.gl-inet.cn"
+# Other regions: "server": "gslb-eu.goodcloud.xyz"
+
+# 3. Restart cloud service
+/etc/init.d/S99gl-cloud restart
+
+# 4. Regenerate binding link
+/usr/bin/eco /usr/bin/get_bindlink bindlink
+cat /var/run/cloud/bindlink
+```
+
+### Problem 3: Restore Original Configuration
+
+**Complete Uninstallation**:
+
+```bash
+# 1. Restore original KVMD script
+cp /usr/bin/kvmd.bak /usr/bin/kvmd
+
+# 2. Remove user configuration
+rm -rf /etc/kvmd/user
+
+# 3. Restart services
+/etc/init.d/kvmd restart
+/etc/init.d/S99gl-cloud restart
+
+# 4. Verify restoration
+ps aux | grep kvmd
+curl -s http://localhost/api/turn/get_turn | jq
+```
+
+---
+
+## ❓ FAQ
+
+### Q: Does this tool only support RM1?
+
+A: Not just RM1. This tool works with all GLKVM-based devices, including RM1, RM10, etc. As long as it's a GLKVM system, it can be used.
+
+### Q: Will modifying country code affect device warranty?
+
+A: This tool runs entirely in user space and doesn't modify the kernel or firmware. Theoretically, it shouldn't affect warranty, but use at your own risk.
+
+### Q: What is the token? Can I share it?
+
+A: The token is a unique identifier for the device, used for cloud service authentication. Each device has a different token. **Do not share it**.
+
+### Q: How do I know which server I'm using?
+
+A: You can check with:
+```bash
+# View country code
+cat /etc/kvmd/user/country_code
+
+# View cloud service configuration
+cat /etc/glinet/gl-cloud.conf
+
+# View binding link
+curl -s http://localhost/api/astrowarp/get_bind_link | jq
+```
+
+### Q: Do I need to reboot the device after switching servers?
+
+A: No. The script automatically restarts related services (KVMD and gl-cloud), no need to reboot the entire device.
+
+### Q: Which country codes are supported?
+
+A: Currently supported: CN (China), US (USA), EU (Europe), GB (UK), JP (Japan), KR (South Korea). CN uses Chinese servers, while all other country codes use international servers.
+
+---
+
+## 📄 License
+
+This project is based on analysis of GLKVM and PiKVM, licensed under **GPL v3 License**.
+
+### Disclaimer
+
+⚠️ **Use this tool at your own risk**：
+- Modifying system configuration may cause device malfunction
+- Cloud service binding may violate GL.iNet's terms of service
+- Please comply with relevant laws and regulations
+- Authors are not responsible for any losses
+
+---
+
+## 📮 Feedback & Support
+
+- **Issues**: [Submit Issue](https://github.com/yusui-shun/glinet-change-country-code/issues)
+- **Discussions**: [Join Discussion](https://github.com/yusui-shun/glinet-change-country-code/discussions)
+
+---
+
+## 🙏 Acknowledgments
+
+- **PiKVM Project** - Excellent KVM over IP solution
+- **GL.iNet** - Hardware devices and open source GLKVM project
+- **Rockchip** - RK1126 SoC and technical support
+
+---
+
+**If this tool helps you, please give it a Star ⭐**

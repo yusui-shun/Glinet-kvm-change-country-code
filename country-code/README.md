@@ -252,8 +252,9 @@ killall -HUP kvmd
 
 1. **访问 Web UI**
    ```
-   https://192.168.8.107
+   https://<your-device-ip>
    ```
+   替换 `<your-device-ip>` 为你的设备 IP 地址，例如：`https://192.168.1.100`
 
 2. **检查动态绑定码**
    - 登录后，在主页查看 "Dynamic Binding Code"
@@ -263,6 +264,41 @@ killall -HUP kvmd
    - 点击 "Cloud Service" 或 "云服务"
    - 中国配置: `https://www.glkvm.cn/#/bindDeviceByFirmware?...`
    - 其他地区配置: `https://www.glkvm.com/#/bindDeviceByFirmware?...`
+
+### ⚠️ Cloud Service 绑定注意事项
+
+**重要**: 在 Web UI 进行 Cloud Service 绑定时，请注意以下事项：
+
+1. **绑定方式选择**
+   - 执行完脚本后，在 Web UI 中会看到两个选项：
+     - `Bind to KVMD CLOUD` - 绑定到云平台
+     - `Bind with Code` - 使用绑定码绑定
+
+2. **手动添加绑定码**
+   - 无论选择哪种方式，都需要**手动在对应国家码的服务器平台添加绑定码**
+   - 中国配置: 访问 `www.glkvm.cn` 添加绑定码
+   - 其他地区配置: 访问 `www.glkvm.com` 添加绑定码
+
+3. **域名匹配检查**
+   - 绑定码必须与国家码对应的服务器平台匹配
+   - **可能出现不匹配情况**:
+     - 配置了中国服务器(CN)，但生成的是 `www.glkvm.com` 的绑定链接
+     - 配置了国际服务器，但生成的是 `www.glkvm.cn` 的绑定链接
+   - **解决方法**: 检查 `/etc/glinet/gl-cloud.conf` 中的 `server` 字段是否正确配置
+     ```bash
+     # 检查配置
+     cat /etc/glinet/gl-cloud.conf
+
+     # 重新生成绑定链接
+     /usr/bin/eco /usr/bin/get_bindlink bindlink
+     cat /var/run/cloud/bindlink
+     ```
+
+4. **验证绑定域名**
+   - 在执行绑定前，请确认生成的绑定链接域名是否正确：
+     - 中国配置应显示 `www.glkvm.cn`
+     - 国际配置应显示 `www.glkvm.com`
+   - 如果域名不匹配，请重新运行配置脚本并重启服务
 
 ---
 
@@ -667,6 +703,41 @@ killall -HUP kvmd
    - Click "Cloud Service"
    - Chinese config: `https://www.glkvm.cn/#/bindDeviceByFirmware?...`
    - Other region config: `https://www.glkvm.com/#/bindDeviceByFirmware?...`
+
+### ⚠️ Cloud Service Binding Notes
+
+**Important**: When binding Cloud Service in Web UI, please note:
+
+1. **Binding Method Selection**
+   - After running the script, you will see two options in Web UI:
+     - `Bind to KVMD CLOUD` - Bind to cloud platform
+     - `Bind with Code` - Use binding code to bind
+
+2. **Manually Add Binding Code**
+   - Regardless of which method you choose, you need to **manually add the binding code on the corresponding country code's server platform**
+   - Chinese config: Visit `www.glkvm.cn` to add binding code
+   - Other region config: Visit `www.glkvm.com` to add binding code
+
+3. **Domain Matching Check**
+   - The binding code must match the server platform corresponding to the country code
+   - **Mismatch may occur**:
+     - Configured for Chinese server (CN), but generates binding link for `www.glkvm.com`
+     - Configured for International server, but generates binding link for `www.glkvm.cn`
+   - **Solution**: Check if the `server` field in `/etc/glinet/gl-cloud.conf` is correctly configured
+     ```bash
+     # Check configuration
+     cat /etc/glinet/gl-cloud.conf
+
+     # Regenerate binding link
+     /usr/bin/eco /usr/bin/get_bindlink bindlink
+     cat /var/run/cloud/bindlink
+     ```
+
+4. **Verify Binding Domain**
+   - Before binding, confirm the generated binding link domain is correct:
+     - Chinese config should show `www.glkvm.cn`
+     - International config should show `www.glkvm.com`
+   - If domain doesn't match, re-run configuration script and restart services
 
 ---
 

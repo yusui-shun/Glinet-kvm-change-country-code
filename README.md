@@ -52,6 +52,8 @@ setup-country-code.sh US
 
 详细使用说明请查看：[country-code/README.md](country-code/README.md)
 
+**注意**: 请将示例中的 IP 地址替换为你设备的实际 IP 地址。
+
 ### 许可证
 
 本项目遵循 **GPL v3 许可证**。详见 [LICENSE](LICENSE) 文件。
@@ -112,6 +114,8 @@ setup-country-code.sh US
 ### Full Documentation
 
 For detailed usage instructions, see: [country-code/README.md](country-code/README.md)
+
+**Note**: Please replace the example IP address with your device's actual IP address.
 
 ### License
 

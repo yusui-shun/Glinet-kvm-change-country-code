@@ -158,12 +158,12 @@ cd glinet-change-country-code/country-code
 
 # 2. 运行安装脚本
 chmod +x install.sh
-sudo ./install.sh
+./install.sh
 
 # 3. 配置国家码
-sudo ./setup-country-code.sh CN   # 中国
+./setup-country-code.sh CN   # 中国
 # 或
-sudo ./setup-country-code.sh US   # 其他地区
+./setup-country-code.sh US   # 其他地区
 ```
 
 ### 快速安装（一键命令）
@@ -196,14 +196,14 @@ curl -s http://localhost/api/turn/get_turn | jq
 
 ```bash
 # 切换到中国服务器
-sudo ./setup-country-code.sh CN
+./setup-country-code.sh CN
 
 # 切换到其他地区服务器
-sudo ./setup-country-code.sh US
-sudo ./setup-country-code.sh EU
-sudo ./setup-country-code.sh GB
-sudo ./setup-country-code.sh JP
-sudo ./setup-country-code.sh KR
+./setup-country-code.sh US
+./setup-country-code.sh EU
+./setup-country-code.sh GB
+./setup-country-code.sh JP
+./setup-country-code.sh KR
 ```
 
 #### 方法 2: 手动配置
@@ -562,12 +562,12 @@ cd glinet-change-country-code/country-code
 
 # 2. Run installation script
 chmod +x install.sh
-sudo ./install.sh
+./install.sh
 
 # 3. Configure country code
-sudo ./setup-country-code.sh CN   # China
+./setup-country-code.sh CN   # China
 # or
-sudo ./setup-country-code.sh US   # Other regions
+./setup-country-code.sh US   # Other regions
 ```
 
 ### Quick Install (One-line)
@@ -600,14 +600,14 @@ curl -s http://localhost/api/turn/get_turn | jq
 
 ```bash
 # Switch to Chinese server
-sudo ./setup-country-code.sh CN
+./setup-country-code.sh CN
 
 # Switch to other region servers
-sudo ./setup-country-code.sh US
-sudo ./setup-country-code.sh EU
-sudo ./setup-country-code.sh GB
-sudo ./setup-country-code.sh JP
-sudo ./setup-country-code.sh KR
+./setup-country-code.sh US
+./setup-country-code.sh EU
+./setup-country-code.sh GB
+./setup-country-code.sh JP
+./setup-country-code.sh KR
 ```
 
 #### Method 2: Manual Configuration

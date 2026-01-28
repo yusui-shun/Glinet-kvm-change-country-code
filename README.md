@@ -42,10 +42,10 @@ curl -fsSL https://raw.githubusercontent.com/yusui-shun/glinet-change-country-co
 
 ```bash
 # 切换到中国服务器
-sudo setup-country-code.sh CN
+setup-country-code.sh CN
 
 # 切换到国际服务器
-sudo setup-country-code.sh US
+setup-country-code.sh US
 ```
 
 ### 完整文档
@@ -103,10 +103,10 @@ curl -fsSL https://raw.githubusercontent.com/yusui-shun/glinet-change-country-co
 
 ```bash
 # Switch to Chinese server
-sudo setup-country-code.sh CN
+setup-country-code.sh CN
 
 # Switch to International server
-sudo setup-country-code.sh US
+setup-country-code.sh US
 ```
 
 ### Full Documentation
